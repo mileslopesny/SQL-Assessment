@@ -305,3 +305,26 @@ WHERE A.LatestSalesOrderID = B.SalesOrderID
 GROUP BY A.CustomerID
 ORDER BY A.CustomerID
 
+/* Query to take a list of orders and produce a "table" that shows the order value per year by productid */
+/* The actual question was take a payroll that has a list of employees and how much they were paid per month and show a table that shows how much each emplyee was paid each year*/
+/* I ended up "hardcoding the years as columns */
+
+SELECT 
+ProductID,
+ISNULL([2011], 0) AS OTotal_2011,
+ISNULL([2012], 0) AS OTotal_2012,
+ISNULL([2013], 0) AS OTotal_2013,
+ISNULL([2014], 0) AS OTotal_2014
+FROM
+(SELECT
+	  [ProductID]
+	  ,YEAR(DueDate) as OYear
+	  ,SUM([StockedQty] * [UnitPrice]) as OTotal
+  FROM [AdventureWorks2022].[Purchasing].[PurchaseOrderDetail]
+  group by ProductID, YEAR(DueDate)) AS A
+PIVOT
+    (SUM(OTotal)
+     FOR OYear IN ([2011], [2012], [2013], [2014] )
+    ) AS PivotTable
+Order by ProductID
+
